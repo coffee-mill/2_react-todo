@@ -1,45 +1,144 @@
 import React, { useState } from 'react';
-import logo from './logo.svg';
-import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0);
-
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
-    </div>
-  );
+interface Todo {
+  value: string;
+  readonly id: number;
+  checked: boolean;
+  removed: boolean;
 }
 
-export default App;
+type Filter = 'all' | 'checked' | 'unchecked' | 'removed';
+
+export const App = () => {
+  const [text, setText] = useState('');
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [filter, setFilter] = useState<Filter>('all');
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setText(e.target.value);
+  };
+
+  const handleOnSubmit = () => {
+    if (!text) return;
+
+    const newTodo: Todo = {
+      value: text,
+      id: new Date().getTime(),
+      checked: false,
+      removed: false,
+    };
+
+    setTodos([newTodo, ...todos]);
+    setText('');
+  };
+
+  const handleOnEdit = (id: number, value: string) => {
+    const deepCopy = todos.map((todo) => ({ ...todo }));
+
+    const newTodos = deepCopy.map((todo) => {
+      if (todo.id === id) {
+        todo.value = value;
+      }
+      return todo;
+    });
+
+    setTodos(newTodos);
+  };
+
+  const handleOnCheck = (id: number, checked: boolean) => {
+    const deepCopy = todos.map((todo) => ({ ...todo }));
+
+    const newTodos = deepCopy.map((todo) => {
+      if (todo.id === id) {
+        todo.checked = !checked;
+      }
+      return todo;
+    });
+
+    setTodos(newTodos);
+  };
+
+  const handleOnRemove = (id: number, removed: boolean) => {
+    const deepCopy = todos.map((todo) => ({ ...todo }));
+
+    const newTodos = deepCopy.map((todo) => {
+      if (todo.id === id) {
+        todo.removed = !removed;
+      }
+      return todo;
+    });
+
+    setTodos(newTodos);
+  };
+
+  const filteredTodos = todos.filter((todo) => {
+    switch (filter) {
+      case 'all':
+        return !todo.removed;
+      case 'checked':
+        return todo.checked && !todo.removed;
+      case 'unchecked':
+        return !todo.checked && !todo.removed;
+      case 'removed':
+        return todo.removed;
+      default:
+        return todo;
+    }
+  });
+
+  return (
+    <div>
+      <select
+        defaultValue="all"
+        onChange={(e) => setFilter(e.target.value as Filter)}
+      >
+        <option value="all">すべてのタスク</option>
+        <option value="checked">完了したタスク</option>
+        <option value="unchecked">現在のタスク</option>
+        <option value="removed">ごみ箱</option>
+      </select>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleOnSubmit();
+        }}
+      >
+        <input
+          type="text"
+          value={text}
+          disabled={filter === 'checked' || filter === 'removed'}
+          onChange={(e) => handleOnChange(e)}
+        />
+        <input
+          type="submit"
+          value="追加"
+          disabled={filter === 'checked' || filter === 'removed'}
+          onSubmit={handleOnSubmit}
+        />
+      </form>
+      <ul>
+        {filteredTodos.map((todo) => {
+          return (
+            <li key={todo.id}>
+              <input
+                type="checkbox"
+                disabled={todo.removed}
+                checked={todo.checked}
+                onChange={() => handleOnCheck(todo.id, todo.checked)}
+              />
+              <input
+                type="text"
+                disabled={todo.checked || todo.removed}
+                value={todo.value}
+                onChange={(e) => handleOnEdit(todo.id, e.target.value)}
+              />
+              <button onClick={() => handleOnRemove(todo.id, todo.removed)}>
+                {todo.removed ? '復元' : '削除'}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+};
