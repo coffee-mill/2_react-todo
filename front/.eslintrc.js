@@ -20,6 +20,7 @@ module.exports = {
     'space-before-function-paren': 'off',
     semi: ['error', 'always'],
     'comma-dangle': 'off',
+    'multiline-ternary': 'off',
   },
   settings: {
     react: {

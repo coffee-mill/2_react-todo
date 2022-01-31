@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
-interface Todo {
+type Todo = {
   value: string;
   readonly id: number;
   checked: boolean;
   removed: boolean;
-}
+};
 
 type Filter = 'all' | 'checked' | 'unchecked' | 'removed';
 
@@ -71,6 +71,11 @@ export const App = () => {
     setTodos(newTodos);
   };
 
+  const handleOnEmpty = () => {
+    const newTodos = todos.filter((todo) => !todo.removed);
+    setTodos(newTodos);
+  };
+
   const filteredTodos = todos.filter((todo) => {
     switch (filter) {
       case 'all':
@@ -97,25 +102,34 @@ export const App = () => {
         <option value="unchecked">現在のタスク</option>
         <option value="removed">ごみ箱</option>
       </select>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleOnSubmit();
-        }}
-      >
-        <input
-          type="text"
-          value={text}
-          disabled={filter === 'checked' || filter === 'removed'}
-          onChange={(e) => handleOnChange(e)}
-        />
-        <input
-          type="submit"
-          value="追加"
-          disabled={filter === 'checked' || filter === 'removed'}
-          onSubmit={handleOnSubmit}
-        />
-      </form>
+      {filter === 'removed' ? (
+        <button
+          onClick={handleOnEmpty}
+          disabled={todos.filter((todo) => todo.removed).length === 0}
+        >
+          ゴミ箱を空にする
+        </button>
+      ) : (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleOnSubmit();
+          }}
+        >
+          <input
+            type="text"
+            value={text}
+            disabled={filter === 'checked'}
+            onChange={(e) => handleOnChange(e)}
+          />
+          <input
+            type="submit"
+            value="追加"
+            disabled={filter === 'checked'}
+            onSubmit={handleOnSubmit}
+          />
+        </form>
+      )}
       <ul>
         {filteredTodos.map((todo) => {
           return (
