@@ -98,7 +98,7 @@ export const App = () => {
         onChange={(e) => setFilter(e.target.value as Filter)}
       >
         <option value="all">すべてのタスク</option>
-        <option value="checked">完了済タスク</option>
+        <option value="checked">完了済のタスク</option>
         <option value="unchecked">現在のタスク</option>
         <option value="removed">ゴミ箱</option>
       </select>
