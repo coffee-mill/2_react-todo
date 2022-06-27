@@ -100,7 +100,7 @@ export const App = () => {
         <option value="all">すべてのタスク</option>
         <option value="checked">完了済タスク</option>
         <option value="unchecked">現在のタスク</option>
-        <option value="removed">ごみ箱</option>
+        <option value="removed">ゴミ箱</option>
       </select>
       {filter === 'removed' ? (
         <button
